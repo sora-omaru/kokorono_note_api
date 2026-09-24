@@ -251,6 +251,13 @@ workspace_invite
 - 30分以内なら複数人が利用可能
 - 期限切れ後は利用不可
 - 招待コードは再発行可能
+- 1 Workspaceにつき、有効な招待コードは1つだけ
+
+再発行時:
+1. 既存の workspace_invite を削除
+2. 新しい6桁コードを生成
+3. expires_at を30分後に設定
+4. 新しい workspace_invite を作成
 
 参加フロー：
 
