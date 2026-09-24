@@ -1,0 +1,11 @@
+spring:
+  config:
+    import: "optional:file:.env[.properties]"
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kokorono_note
+    username: kokorono_note
+    password: ${POSTGRES_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
