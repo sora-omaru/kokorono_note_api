@@ -116,7 +116,6 @@ AccountはGoogleアカウントを元に管理する。
 account
 - id
 - google_sub
-- email
 - display_name
 - created_at
 - updated_at
