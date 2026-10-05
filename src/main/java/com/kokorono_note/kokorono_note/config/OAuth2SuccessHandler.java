@@ -27,6 +27,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         OAuth2User oAuth2User = oauthToken.getPrincipal();
 
         String googleSub = oAuth2User.getAttribute("sub");
+        if (googleSub == null) {
+            throw new IllegalStateException("Google sub is missing");
+        }
         String displayName = oAuth2User.getAttribute("name");
 
         AccountEntity account =
