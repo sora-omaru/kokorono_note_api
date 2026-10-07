@@ -51,7 +51,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                         .queryParam("code", code)
                         .build()
                         .toUriString();
-
+//Google認証終了時にフロントへリダイレクト
         response.sendRedirect(redirectUrl);
 
     }
