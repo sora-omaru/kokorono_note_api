@@ -11,3 +11,6 @@ spring:
 
 app:
   frontend-url: http://localhost:3000
+  jwt:
+    private-key: ${JWT_PRIVATE_KEY}
+    public-key: ${JWT_PUBLIC_KEY}

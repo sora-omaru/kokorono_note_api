@@ -268,6 +268,42 @@ Google OAuthのClient Secret等もGitには保存しない。
 
 本番ではRenderの環境変数として管理する。
 
+### JWT署名用RSA鍵
+
+JWTの署名・検証には、同じRSA鍵ペアの秘密鍵と公開鍵を使う。
+`JWT_PRIVATE_KEY`にはPKCS#8 DERのBase64、`JWT_PUBLIC_KEY`にはX.509 DERのBase64を設定する。
+値にはPEMヘッダー、引用符、改行を含めない。
+
+ローカルではプロジェクトルートの`.env`に設定し、`local`プロファイルを有効にして起動する。
+既存の`application-local.yml`の`spring.config.import`が`.env`を読み込む。
+`.env`はJava properties形式のため、`export`や値を囲む引用符は付けない。
+
+```properties
+JWT_PRIVATE_KEY=秘密鍵のBase64値
+JWT_PUBLIC_KEY=公開鍵のBase64値
+```
+
+```sh
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+鍵を生成する場合は、Git管理外の作業ディレクトリで以下を実行する。
+`private-key.pem`は秘密鍵なので、リポジトリには保存しない。
+
+```sh
+umask 077
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out private-key.pem
+openssl pkcs8 -topk8 -nocrypt -in private-key.pem -outform DER | openssl base64 -A
+openssl pkey -in private-key.pem -pubout -outform DER | openssl base64 -A
+```
+
+`openssl pkcs8`の出力を`JWT_PRIVATE_KEY`、`openssl pkey`の出力を`JWT_PUBLIC_KEY`に設定する。
+
+本番ではRenderの対象サービスのEnvironmentに同じ2変数を登録し、再デプロイする。
+本番用にはローカルとは別の鍵ペアを用意し、`local`プロファイルは有効にしない。
+鍵は起動時に読み込み、未設定・不正な形式・鍵の不一致の場合は起動を失敗させる。
+再起動のたびに鍵を生成する処理はない。鍵を変更すると変更前のJWTは検証できなくなる。
+
 ---
 
 ## 12. セキュリティ方針
