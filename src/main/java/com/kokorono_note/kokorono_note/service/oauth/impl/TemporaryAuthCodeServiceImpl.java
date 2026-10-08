@@ -52,7 +52,7 @@ public class TemporaryAuthCodeServiceImpl implements TemporaryAuthCodeService {
         }
 
     }
-
+   //一時コードからアカウントIDを削除し、それを返す。
     @Override
     public UUID consume(String code) {
         if (code == null || code.isBlank()) {
