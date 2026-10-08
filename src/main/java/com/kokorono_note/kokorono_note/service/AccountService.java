@@ -6,5 +6,4 @@ import com.kokorono_note.kokorono_note.entity.AccountEntity;
 public interface AccountService {
     AccountEntity findOrCreateAccount(String googleSub, String displayName);
 
-    String exchangeCodeForAccessToken(String code);
 }
