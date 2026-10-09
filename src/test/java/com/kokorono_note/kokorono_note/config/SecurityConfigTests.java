@@ -17,7 +17,7 @@ class SecurityConfigTests {
 
     private static KeyPair keyPair;
     private static KeyPair otherKeyPair;
-    private final SecurityConfig config = new SecurityConfig(null);
+    private final JwtConfig config = new JwtConfig();
 
     @BeforeAll
     static void generateTestKeys() throws Exception {

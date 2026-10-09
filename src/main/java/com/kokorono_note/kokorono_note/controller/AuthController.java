@@ -1,7 +1,6 @@
 package com.kokorono_note.kokorono_note.controller;
 
 import com.kokorono_note.kokorono_note.dto.request.AuthCodeRequest;
-import com.kokorono_note.kokorono_note.dto.response.AccessTokenResponse;
 import com.kokorono_note.kokorono_note.dto.response.TokenResponse;
 import com.kokorono_note.kokorono_note.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +19,9 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/token")
-    public AccessTokenResponse exchangeCodeForAccessToken(@RequestBody AuthCodeRequest request) {
+    public TokenResponse exchangeCodeForAccessToken(@RequestBody AuthCodeRequest request) {
         try {
-            TokenResponse accessToken = authService.exchangeCodeForAccessToken(request.code());
-            return new AccessTokenResponse(accessToken);
+            return authService.exchangeCodeForAccessToken(request.code());
         } catch (IllegalArgumentException exception) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid authentication code", exception);
         }

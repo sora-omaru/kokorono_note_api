@@ -11,7 +11,7 @@ import java.util.UUID;
 @Repository
 public interface WorkspaceAccountRepository extends JpaRepository<WorkspaceAccountEntity, WorkspaceAccountId> {
 
-    boolean exitsByWorkspace_IdAndAccount_Id(UUID workspaceId, UUID accountID);
+    boolean existsByWorkspace_IdAndAccount_Id(UUID workspaceId, UUID accountID);
 
     List<WorkspaceAccountEntity> findByAccount_Id(UUID accountId);
 }
