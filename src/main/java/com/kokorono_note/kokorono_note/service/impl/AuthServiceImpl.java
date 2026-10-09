@@ -21,18 +21,21 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
-    // 一時コードを受け取ってAccountを特定し、AccessTokenを作成する
+    // 認証処理をまとめる
     @Override
     public TokenResponse exchangeCodeForAccessToken(String code) {
+        //一時認証コードを消費してaccountIdを取得する
         UUID accountId = temporaryAuthCodeService.consume(code);
 
         AccountEntity account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new IllegalStateException("Account Not Found"));
 
+        //JwtServiceにRefreshTokenの作成依頼
         String accessToken = jwtService.generateAccessToken(account);
 
         String refreshToken = refreshTokenService.generateRefreshToken(account);
 
+        //二つのトークンを返却
         return new TokenResponse(accessToken, refreshToken);
     }
 }
