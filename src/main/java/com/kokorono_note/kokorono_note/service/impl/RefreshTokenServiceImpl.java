@@ -1,9 +1,11 @@
 package com.kokorono_note.kokorono_note.service.impl;
 
+import com.kokorono_note.kokorono_note.dto.response.RefreshTokenRotationResult;
 import com.kokorono_note.kokorono_note.entity.AccountEntity;
 import com.kokorono_note.kokorono_note.entity.RefreshTokenEntity;
 import com.kokorono_note.kokorono_note.repository.RefreshTokenRepository;
 import com.kokorono_note.kokorono_note.service.RefreshTokenService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -47,6 +49,40 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         refreshTokenRepository.save(refreshToken);
 
         return rawToken;
+    }
+
+    @Transactional
+    @Override
+    public RefreshTokenRotationResult rotateRefreshToken(String rawToken) {
+//
+        String tokenHash = hashToken(rawToken);
+
+
+        RefreshTokenEntity refreshToken =
+                refreshTokenRepository.findByTokenHash(tokenHash)
+                        .orElseThrow(() -> new IllegalArgumentException("Invalid refresh Token"));
+
+        // 有効期限の確認
+        if (!refreshToken.getExpiresAt().isAfter(OffsetDateTime.now())) {
+            throw new IllegalArgumentException("Refresh token has expired");
+        }
+
+
+        // 無効化済みか確認
+        if (refreshToken.getRevokedAt() != null) {
+            throw new IllegalArgumentException(
+                    "Refresh token has already been revoked"
+            );
+        }
+
+        // 古いRefresh Tokenを無効化
+        refreshToken.setRevokedAt(OffsetDateTime.now());
+
+        //新しいRefreshToken発行
+        String newRefreshToken = generateRefreshToken(refreshToken.getAccount());
+
+
+        return new RefreshTokenRotationResult(refreshToken.getAccount(), newRefreshToken);
     }
 
     private String hashToken(String rawToken) {

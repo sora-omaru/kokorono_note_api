@@ -1,5 +1,6 @@
 package com.kokorono_note.kokorono_note.service.impl;
 
+import com.kokorono_note.kokorono_note.dto.response.RefreshTokenRotationResult;
 import com.kokorono_note.kokorono_note.dto.response.TokenResponse;
 import com.kokorono_note.kokorono_note.entity.AccountEntity;
 import com.kokorono_note.kokorono_note.repository.AccountRepository;
