@@ -23,7 +23,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/auth/token")
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/auth/token").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/token", "/auth/refresh").permitAll()
                         .requestMatchers(
                                 "/oauth2/authorization/**",
                                 "/login/oauth2/code/**"
