@@ -1,7 +1,7 @@
 package com.kokorono_note.kokorono_note.config;
 
 import com.kokorono_note.kokorono_note.entity.AccountEntity;
-import com.kokorono_note.kokorono_note.service.impl.JwtServiceImpl;
+import com.kokorono_note.kokorono_note.service.JwtService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -34,7 +34,7 @@ class SecurityConfigTests {
         AccountEntity account = new AccountEntity();
         account.setId(UUID.randomUUID());
 
-        String token = new JwtServiceImpl(config.jwtEncoder(loaded)).generateAccessToken(account);
+        String token = new JwtService(config.jwtEncoder(loaded)).generateAccessToken(account);
         var jwt = config.jwtDecoder(loaded).decode(token);
 
         assertEquals(account.getId().toString(), jwt.getSubject());
