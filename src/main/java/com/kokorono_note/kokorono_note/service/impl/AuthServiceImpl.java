@@ -39,4 +39,14 @@ public class AuthServiceImpl implements AuthService {
         //二つのトークンを返却
         return new TokenResponse(accessToken, refreshToken);
     }
+
+    //新しいaccessTokenと新しいRefreshTokenを作成
+    @Override
+    public TokenResponse refresh(String rawToken) {
+        RefreshTokenRotationResult result = refreshTokenService.rotateRefreshToken(rawToken);
+
+        String accessToken = jwtService.generateAccessToken(result.account());
+
+        return new TokenResponse(accessToken, result.refreshToken());
+    }
 }
