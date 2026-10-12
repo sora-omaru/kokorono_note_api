@@ -12,22 +12,25 @@
 
 プロファイルを指定しない場合は `local` で起動します。
 
-1. `.env` に `POSTGRES_PASSWORD`、`JWT_PRIVATE_KEY`、`JWT_PUBLIC_KEY` を設定します。JWT鍵の形式は `.env.example` を参照してください。
+1. `.env` に `POSTGRES_PASSWORD`、`JWT_PRIVATE_KEY`、`JWT_PUBLIC_KEY`、`GOOGLE_CLIENT_ID`、`GOOGLE_CLIENT_SECRET` を設定します。JWT鍵の形式は `.env.example` を参照してください。
 2. `docker compose up -d postgres` でDBを起動します。
 3. `./mvnw spring-boot:run` でアプリを起動します。
 
-`local` ではGoogle OAuthを無効にし、トークンなしのAPIリクエストを許可します。Bearerトークンを送った場合はJWTを検証します。JWTを使うサービスも同じ `.env` の鍵を使用します。ログイン成功による一時コードの発行は行いません。
+認証設定は1つの `SecurityConfig` に統一し、`local` と `prod` の両方でGoogle OAuthとJWT認証を使います。`/auth/token` と `/auth/refresh`、Googleログイン用のURL以外は認証が必要です。`/auth/token` はCSRF検証の対象外ですが、Cookieを使う `/auth/refresh` はCSRFトークンが必要です。
+
+Google側にリダイレクトURI `http://localhost:8080/login/oauth2/code/google` を登録し、`http://localhost:8080/oauth2/authorization/google` からログインを開始します。ログイン成功後は `http://localhost:3000/oauth/callback` に一時コードを付けて戻ります。
 
 テストはDBを起動してから `./mvnw test` で実行します。
 
-## Google認証を有効にする場合
+## 本番環境
 
-`local` 以外のプロファイルを明示すると既存の `SecurityConfig` が有効になります。その環境にDB接続設定、JWT鍵、`app.frontend-url` と次のGoogleクライアント登録を設定してください。
+`SPRING_PROFILES_ACTIVE=prod` を指定して起動します。環境差分は `application-local.yml` と `application-prod.yml` で管理し、本番では `.env` を読み込まず環境変数を使います。
 
-```properties
-spring.security.oauth2.client.registration.google.client-id=${GOOGLE_CLIENT_ID}
-spring.security.oauth2.client.registration.google.client-secret=${GOOGLE_CLIENT_SECRET}
-spring.security.oauth2.client.registration.google.scope=openid,profile,email
-```
+次の環境変数を設定してください。
 
-Google側にもリダイレクトURI（ローカルなら `http://localhost:8080/login/oauth2/code/google`）を登録します。`local` の認証不要設定はローカル開発用です。
+- `DATABASE_URL`（`jdbc:postgresql://...`）、`DATABASE_USERNAME`、`DATABASE_PASSWORD`
+- `JWT_PRIVATE_KEY`、`JWT_PUBLIC_KEY`（形式は `.env.example` を参照）
+- `GOOGLE_CLIENT_ID`、`GOOGLE_CLIENT_SECRET`
+- `FRONTEND_URL`（フロントエンドのURL）
+
+Google側には本番APIの `/login/oauth2/code/google` のURLも登録してください。

@@ -18,8 +18,7 @@ spring:
             client-secret: ${GOOGLE_CLIENT_SECRET}
             scope:
               - openid
-              - profile
-
+              - profileit
 
 app:
   frontend-url: http://localhost:3000

@@ -8,6 +8,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.startsWith;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,13 +18,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @ActiveProfiles("local")
 @AutoConfigureMockMvc
-class LocalSecurityConfigTests {
+class SecurityFilterChainTests {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    void permitsApiRequestsWithoutLoginOrCsrfToken() throws Exception {
+    void permitsTokenExchangeWithoutLoginOrCsrfToken() throws Exception {
         mockMvc.perform(post("/auth/token")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\":\"invalid-local-code\"}"))
@@ -29,9 +32,26 @@ class LocalSecurityConfigTests {
     }
 
     @Test
-    void doesNotRegisterGoogleLogin() throws Exception {
+    void registersGoogleLogin() throws Exception {
         mockMvc.perform(get("/oauth2/authorization/google"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header()
+                        .string("Location", startsWith("https://accounts.google.com/")));
+    }
+
+    @Test
+    void requiresAuthenticationForApiRequests() throws Exception {
+        mockMvc.perform(get("/private"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void protectsRefreshWithCsrf() throws Exception {
+        mockMvc.perform(post("/auth/refresh"))
+                .andExpect(status().isForbidden());
+        mockMvc.perform(post("/auth/refresh")
+                        .with(csrf()))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
