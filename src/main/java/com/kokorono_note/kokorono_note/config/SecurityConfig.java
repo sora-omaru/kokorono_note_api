@@ -1,5 +1,6 @@
 package com.kokorono_note.kokorono_note.config;
 
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,7 @@ public class SecurityConfig {
                         .ignoringRequestMatchers("/auth/token")
                 )
                 .authorizeHttpRequests(authorize -> authorize
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/token", "/auth/refresh").permitAll()
                         .requestMatchers(
                                 "/oauth2/authorization/**",
