@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -29,5 +30,13 @@ public class WorkspaceController {
         UUID accountId = UUID.fromString(jwt.getSubject());
 
         return workspaceService.create(accountId, request);
+    }
+
+    public List<WorkspaceResponse> getWorkspace(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody WorkspaceCreateRequest request
+    ) {
+        UUID accountId = UUID.fromString(jwt.getSubject());
+        return workspaceService.getWorkspace(accountId);
     }
 }

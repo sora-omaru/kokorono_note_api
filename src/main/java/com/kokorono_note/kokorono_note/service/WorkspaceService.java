@@ -8,11 +8,13 @@ import com.kokorono_note.kokorono_note.entity.WorkspaceEntity;
 import com.kokorono_note.kokorono_note.repository.AccountRepository;
 import com.kokorono_note.kokorono_note.repository.WorkspaceAccountRepository;
 import com.kokorono_note.kokorono_note.repository.WorkspaceRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -47,5 +49,12 @@ public class WorkspaceService {
 
         return new WorkspaceResponse(saved.getId(), saved.getName());
 
+    }
+
+    @Transactional
+    public List<WorkspaceResponse> getWorkspace(UUID accountId) {
+        return workspaceRepository.findAllByAccountId(accountId).stream().map(
+                        workspace -> new WorkspaceResponse(workspace.getId(), workspace.getName()))
+                .toList();
     }
 }
