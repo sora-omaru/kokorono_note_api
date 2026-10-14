@@ -38,6 +38,7 @@ public class WorkspaceService {
 
         WorkspaceEntity saved = workspaceRepository.save(workspace);
 
+        //WorkspaceAccountにも設定
         WorkspaceAccountEntity membership = new WorkspaceAccountEntity();
         membership.setWorkspace(saved);
         membership.setAccount(account);
