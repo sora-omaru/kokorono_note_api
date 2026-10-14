@@ -32,9 +32,9 @@ public class WorkspaceController {
         return workspaceService.create(accountId, request);
     }
 
+    @GetMapping
     public List<WorkspaceResponse> getWorkspace(
-            @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody WorkspaceCreateRequest request
+            @AuthenticationPrincipal Jwt jwt
     ) {
         UUID accountId = UUID.fromString(jwt.getSubject());
         return workspaceService.getWorkspace(accountId);
