@@ -57,4 +57,8 @@ public class WorkspaceService {
                         workspace -> new WorkspaceResponse(workspace.getId(), workspace.getName()))
                 .toList();
     }
+
+    public WorkspaceResponse getWorkspaceById(UUID accountId, UUID workspaceId) {
+        return null;
+    }
 }

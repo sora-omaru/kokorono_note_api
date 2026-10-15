@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -19,4 +20,18 @@ public interface WorkspaceRepository extends JpaRepository<WorkspaceEntity, UUID
                   WHERE workspaceAccount.account.id = :accountId
             """)
     List<WorkspaceEntity> findAllByAccountId(@Param("accountId") UUID accountId);
+
+   @Query("""
+                  SELECT workspace
+                  FROM WorkspaceEntity workspace
+                  JOIN WorkspaceAccountEntity workspaceAccount
+                              ON workspaceAccount.workspace.id = workspace.id
+                  WHERE workspace.id = :workspaceId
+                    AND workspaceAccount.account.id = :accountId
+           
+           """)
+    Optional<WorkspaceEntity>findByIdAndAccountId(
+            @Param("workspaceId") UUID workspaceId,
+            @Param("accountId") UUID accountId
+   );
 }
