@@ -39,4 +39,14 @@ public class WorkspaceController {
         UUID accountId = UUID.fromString(jwt.getSubject());
         return workspaceService.getWorkspace(accountId);
     }
+
+    @GetMapping("/{workspaceId}")
+    public WorkspaceResponse getWorkspaceById(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID workspaceId
+    ) {
+        UUID accountId = UUID.fromString(jwt.getSubject());
+
+        return workspaceService.getWorkspaceById(accountId, workspaceId);
+    }
 }

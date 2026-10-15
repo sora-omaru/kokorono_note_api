@@ -59,6 +59,14 @@ public class WorkspaceService {
     }
 
     public WorkspaceResponse getWorkspaceById(UUID accountId, UUID workspaceId) {
-        return null;
+        WorkspaceEntity workspace = workspaceRepository.findByIdAndAccountId(workspaceId, accountId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Workspace not found"
+                ));
+        return new WorkspaceResponse(
+                workspace.getId(),
+                workspace.getName()
+        );
     }
 }
