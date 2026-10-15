@@ -69,4 +69,14 @@ public class WorkspaceService {
                 workspace.getName()
         );
     }
+
+    @Transactional
+    public void deleteWorkspace(UUID accountId, UUID workspaceId) {
+        WorkspaceEntity workspace = workspaceRepository.findByIdAndAccountId(workspaceId, accountId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Workspace not found"
+                ));
+        workspaceRepository.delete(workspace);
+    }
 }

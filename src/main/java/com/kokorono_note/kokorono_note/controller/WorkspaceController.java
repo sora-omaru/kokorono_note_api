@@ -49,4 +49,14 @@ public class WorkspaceController {
 
         return workspaceService.getWorkspaceById(accountId, workspaceId);
     }
+
+    @DeleteMapping("/{workspaceId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteWorkspace(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable UUID workspaceId
+    ) {
+        UUID accountId = UUID.fromString(jwt.getSubject());
+        workspaceService.deleteWorkspace(accountId, workspaceId);
+    }
 }
