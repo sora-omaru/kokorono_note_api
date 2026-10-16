@@ -35,7 +35,7 @@ public class WorkspaceInviteService {
 
         WorkspaceInviteEntity invite = new WorkspaceInviteEntity();
         invite.setWorkspace(workspace);
-        invite.setCode(generateInviteCode());
+        invite.setCode(generateUniqueInviteCode());
         invite.setExpiresAt(OffsetDateTime.now().plusMinutes(30));
 
         WorkspaceInviteEntity saved = workspaceInviteRepository.save(invite);
@@ -54,5 +54,22 @@ public class WorkspaceInviteService {
         }
 
         return code.toString();
+    }
+
+    //コードの重複を確認し、新しいのを発行する。
+    private String generateUniqueInviteCode() {
+        final int MAX_ATTEMPTS = 5;
+
+        for (int count = 0; count < MAX_ATTEMPTS; count++) {
+            String code = generateInviteCode();
+
+            if (workspaceInviteRepository.findByCode(code).isEmpty()) {
+                return code;
+            }
+        }
+
+        throw new IllegalStateException(
+                "Failed to generate unique invite code"
+        );
     }
 }
