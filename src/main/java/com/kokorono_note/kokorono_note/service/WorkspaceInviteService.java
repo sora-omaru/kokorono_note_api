@@ -101,7 +101,6 @@ public class WorkspaceInviteService {
         return new WorkspaceResponse(workspace.getId(), workspace.getName());
     }
 
-    ;
 
     private String generateInviteCode() {
         StringBuilder code = new StringBuilder(6);

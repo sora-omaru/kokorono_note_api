@@ -25,6 +25,7 @@ public class WorkspaceService {
     final WorkspaceRepository workspaceRepository;
     final WorkspaceAccountRepository workspaceAccountRepository;
 
+    @Transactional
     public WorkspaceResponse create(
             UUID accountId, WorkspaceCreateRequest request
     ) {
