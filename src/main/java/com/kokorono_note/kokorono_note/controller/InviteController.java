@@ -1,16 +1,15 @@
 package com.kokorono_note.kokorono_note.controller;
 
+import com.kokorono_note.kokorono_note.dto.request.WorkspaceJoinRequest;
 import com.kokorono_note.kokorono_note.dto.response.InviteResponse;
+import com.kokorono_note.kokorono_note.dto.response.WorkspaceResponse;
 import com.kokorono_note.kokorono_note.service.WorkspaceInviteService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -29,5 +28,14 @@ public class InviteController {
     ) {
         UUID accountId = UUID.fromString(jwt.getSubject());
         return workspaceInviteService.createInvite(accountId, workspaceId);
+    }
+
+    @PostMapping("/join")
+    public WorkspaceResponse joinWorkspace(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody WorkspaceJoinRequest request
+    ) {
+        UUID accountId = UUID.fromString(jwt.getSubject());
+        return workspaceInviteService.joinWorkspace(accountId, request.code());
     }
 }

@@ -24,14 +24,6 @@ public class WorkspaceController {
     private final WorkspaceService workspaceService;
     private final WorkspaceInviteService workspaceInviteService;
 
-    @PostMapping("/join")
-    public WorkspaceResponse joinWorkspace(
-            @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody WorkspaceJoinRequest request
-    ) {
-        UUID accountId = UUID.fromString(jwt.getSubject());
-        return workspaceInviteService.joinWorkspace(accountId, request.code());
-    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
