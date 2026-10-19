@@ -10,6 +10,7 @@ import com.kokorono_note.kokorono_note.repository.AccountRepository;
 import com.kokorono_note.kokorono_note.repository.WorkspaceAccountRepository;
 import com.kokorono_note.kokorono_note.repository.WorkspaceInviteRepository;
 import com.kokorono_note.kokorono_note.repository.WorkspaceRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,7 @@ public class WorkspaceInviteService {
         );
     }
 
+    @Transactional
     public WorkspaceResponse joinWorkspace(UUID accountId, String code) {
 
 
