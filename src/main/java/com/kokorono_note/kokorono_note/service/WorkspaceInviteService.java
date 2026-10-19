@@ -1,8 +1,13 @@
 package com.kokorono_note.kokorono_note.service;
 
 import com.kokorono_note.kokorono_note.dto.response.InviteResponse;
+import com.kokorono_note.kokorono_note.dto.response.WorkspaceResponse;
+import com.kokorono_note.kokorono_note.entity.AccountEntity;
+import com.kokorono_note.kokorono_note.entity.WorkspaceAccountEntity;
 import com.kokorono_note.kokorono_note.entity.WorkspaceEntity;
 import com.kokorono_note.kokorono_note.entity.WorkspaceInviteEntity;
+import com.kokorono_note.kokorono_note.repository.AccountRepository;
+import com.kokorono_note.kokorono_note.repository.WorkspaceAccountRepository;
 import com.kokorono_note.kokorono_note.repository.WorkspaceInviteRepository;
 import com.kokorono_note.kokorono_note.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +24,8 @@ import java.util.UUID;
 public class WorkspaceInviteService {
     final WorkspaceRepository workspaceRepository;
     final WorkspaceInviteRepository workspaceInviteRepository;
-
+    final AccountRepository accountRepository;
+    final WorkspaceAccountRepository workspaceAccountRepository;
     private static final String CHARS =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
@@ -44,6 +50,56 @@ public class WorkspaceInviteService {
                 saved.getCode(), saved.getExpiresAt()
         );
     }
+
+    public WorkspaceResponse joinWorkspace(UUID accountId, String code) {
+
+
+        WorkspaceInviteEntity invite = workspaceInviteRepository.findByCode(code).orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Invalid invite code"
+        ));
+
+
+        //有効期限確認
+        if (!invite.getExpiresAt().isAfter(OffsetDateTime.now())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Invite code has expired"
+            );
+        }
+
+        WorkspaceEntity workspace = invite.getWorkspace();
+
+        //すでに登録済みかを確認する
+        if (workspaceAccountRepository.existsByWorkspace_IdAndAccount_Id(
+                workspace.getId(), accountId
+        )) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Already joined workspace"
+            );
+        }
+
+        //アカウント情報を取得
+        AccountEntity account = accountRepository.findById(accountId).orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Not found account"
+        ));
+
+
+        //登録されていない場合、WorkspaceAccountに登録する
+        WorkspaceAccountEntity membership = new WorkspaceAccountEntity();
+
+        membership.setAccount(account);
+        membership.setWorkspace(workspace);
+
+        workspaceAccountRepository.save(membership);
+
+        //登録されたWorkspace情報を返す
+        return new WorkspaceResponse(workspace.getId(), workspace.getName());
+    }
+
+    ;
 
     private String generateInviteCode() {
         StringBuilder code = new StringBuilder(6);
