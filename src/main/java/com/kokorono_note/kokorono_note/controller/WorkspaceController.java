@@ -2,8 +2,10 @@ package com.kokorono_note.kokorono_note.controller;
 
 
 import com.kokorono_note.kokorono_note.dto.request.WorkspaceCreateRequest;
+import com.kokorono_note.kokorono_note.dto.request.WorkspaceJoinRequest;
 import com.kokorono_note.kokorono_note.dto.response.WorkspaceResponse;
 import com.kokorono_note.kokorono_note.service.WorkspaceService;
+import com.kokorono_note.kokorono_note.service.WorkspaceInviteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,16 @@ import java.util.UUID;
 public class WorkspaceController {
 
     private final WorkspaceService workspaceService;
+    private final WorkspaceInviteService workspaceInviteService;
+
+    @PostMapping("/join")
+    public WorkspaceResponse joinWorkspace(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody WorkspaceJoinRequest request
+    ) {
+        UUID accountId = UUID.fromString(jwt.getSubject());
+        return workspaceInviteService.joinWorkspace(accountId, request.code());
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
