@@ -6,6 +6,7 @@ import com.kokorono_note.kokorono_note.entity.RefreshTokenEntity;
 import com.kokorono_note.kokorono_note.repository.RefreshTokenRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -23,6 +24,14 @@ public class RefreshTokenService {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private final RefreshTokenRepository refreshTokenRepository;
+
+    // 毎日、日本時間の午前3時に実行する（サーバーのタイムゾーンに依存しない）。
+    @Scheduled(cron = "0 0 3 * * *", zone = "Asia/Tokyo")
+    @Transactional
+    public void deleteExpiredRefreshTokens() {
+        // 実行時点で期限切れのものだけを削除し、有効なトークンは残す。
+        refreshTokenRepository.deleteExpiredTokens(OffsetDateTime.now());
+    }
 
     public String generateRefreshToken(AccountEntity account) {
         byte[] randomBytes = new byte[32];
