@@ -6,6 +6,7 @@ import com.kokorono_note.kokorono_note.entity.EventEntity;
 import com.kokorono_note.kokorono_note.entity.WorkspaceEntity;
 import com.kokorono_note.kokorono_note.repository.EventRepository;
 import com.kokorono_note.kokorono_note.repository.WorkspaceRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class EventService {
     final WorkspaceRepository workspaceRepository;
     final EventRepository eventRepository;
 
+    @Transactional
     public EventResponse createEvent(
             UUID accountId,
             UUID workspaceId,
