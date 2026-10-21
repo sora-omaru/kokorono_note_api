@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -41,5 +42,28 @@ public class EventService {
         EventEntity saved = eventRepository.save(event);
 
         return new EventResponse(saved.getId(), saved.getName());
+    }
+    @Transactional
+    public List<EventResponse> getEvents(UUID accountId, UUID workspaceId) {
+        requireWorkspace(accountId, workspaceId);
+        return eventRepository.findAllByWorkspaceIdOrderByCreatedAtAscIdAsc(workspaceId)
+                .stream()
+                .map(event -> new EventResponse(event.getId(), event.getName()))
+                .toList();
+    }
+
+    @Transactional
+    public EventResponse getEventById(UUID accountId, UUID workspaceId, Long eventId) {
+        requireWorkspace(accountId, workspaceId);
+        EventEntity event = eventRepository.findByIdAndWorkspaceId(eventId, workspaceId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Event not found"));
+        return new EventResponse(event.getId(), event.getName());
+    }
+
+    private void requireWorkspace(UUID accountId, UUID workspaceId) {
+        workspaceRepository.findByIdAndAccountId(workspaceId, accountId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Workspace not found"));
     }
 }

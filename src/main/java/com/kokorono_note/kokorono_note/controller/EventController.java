@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -18,6 +19,25 @@ import java.util.UUID;
 public class EventController {
 
     private final EventService eventService;
+
+    @GetMapping
+    public List<EventResponse> getEvents(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable("workspaceId") UUID workspaceId
+    ) {
+        UUID accountId = UUID.fromString(jwt.getSubject());
+        return eventService.getEvents(accountId, workspaceId);
+    }
+
+    @GetMapping("/{eventId}")
+    public EventResponse getEventById(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable("workspaceId") UUID workspaceId,
+            @PathVariable("eventId") Long eventId
+    ) {
+        UUID accountId = UUID.fromString(jwt.getSubject());
+        return eventService.getEventById(accountId, workspaceId, eventId);
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

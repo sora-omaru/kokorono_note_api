@@ -16,10 +16,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class EventControllerTests {
@@ -73,5 +75,36 @@ class EventControllerTests {
 
         mvc.perform(post(path).contentType(MediaType.APPLICATION_JSON).content("{\"name\":\"旅行\"}"))
                 .andExpect(status().isNotFound());
+    }
+    @Test
+    void listsEvents() throws Exception {
+        when(eventService.getEvents(accountId, workspaceId))
+                .thenReturn(List.of(new EventResponse(1L, "旅行")));
+        mvc.perform(get(path))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("旅行"));
+        verify(eventService).getEvents(accountId, workspaceId);
+    }
+
+    @Test
+    void getsSingleEvent() throws Exception {
+        when(eventService.getEventById(accountId, workspaceId, 1L))
+                .thenReturn(new EventResponse(1L, "旅行"));
+        mvc.perform(get(path + "/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("旅行"));
+        verify(eventService).getEventById(accountId, workspaceId, 1L);
+    }
+
+    @Test
+    void preservesGetNotFoundStatuses() throws Exception {
+        when(eventService.getEvents(accountId, workspaceId))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+        when(eventService.getEventById(accountId, workspaceId, 1L))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+        mvc.perform(get(path)).andExpect(status().isNotFound());
+        mvc.perform(get(path + "/1")).andExpect(status().isNotFound());
     }
 }
