@@ -49,4 +49,15 @@ public class EventController {
         UUID accountId = UUID.fromString(jwt.getSubject());
         return eventService.createEvent(accountId, workspaceId, request);
     }
+
+    @DeleteMapping("/{eventId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteEvent(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable("workspaceId") UUID workspaceId,
+            @PathVariable("eventId") Long eventId
+    ) {
+        UUID accountId = UUID.fromString(jwt.getSubject());
+        eventService.deleteEvent(accountId, workspaceId, eventId);
+    }
 }
