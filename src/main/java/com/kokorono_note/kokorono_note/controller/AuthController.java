@@ -40,7 +40,7 @@ public class AuthController {
                     .secure(false) // ローカルHTTP開発用
                     .sameSite("Lax")
                     .path("/auth")
-                    .maxAge(Duration.ofDays(30))
+                    .maxAge(Duration.ofDays(1))
                     .build();
 
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -69,7 +69,7 @@ public class AuthController {
                     .secure(false) // ローカルHTTP開発用
                     .sameSite("Lax")
                     .path("/auth")
-                    .maxAge(Duration.ofDays(30))
+                    .maxAge(Duration.ofDays(1))
                     .build();
 
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString())

@@ -50,7 +50,7 @@ public class RefreshTokenService {
         refreshToken.setAccount(account);
         refreshToken.setTokenHash(tokenHash);
         refreshToken.setExpiresAt(
-                OffsetDateTime.now().plusDays(30)
+                OffsetDateTime.now().plusDays(1)
         );
 
         refreshTokenRepository.save(refreshToken);
