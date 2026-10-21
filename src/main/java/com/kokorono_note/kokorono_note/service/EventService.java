@@ -43,9 +43,12 @@ public class EventService {
 
         return new EventResponse(saved.getId(), saved.getName());
     }
+
     @Transactional
     public List<EventResponse> getEvents(UUID accountId, UUID workspaceId) {
+        //Workspace所在確認
         requireWorkspace(accountId, workspaceId);
+
         return eventRepository.findAllByWorkspaceIdOrderByCreatedAtAscIdAsc(workspaceId)
                 .stream()
                 .map(event -> new EventResponse(event.getId(), event.getName()))
@@ -54,7 +57,9 @@ public class EventService {
 
     @Transactional
     public EventResponse getEventById(UUID accountId, UUID workspaceId, Long eventId) {
+
         requireWorkspace(accountId, workspaceId);
+
         EventEntity event = eventRepository.findByIdAndWorkspaceId(eventId, workspaceId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Event not found"));
