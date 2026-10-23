@@ -33,6 +33,7 @@ public class WorkspaceInviteService {
     private static final SecureRandom RANDOM = new SecureRandom();
 
 
+    @Transactional
     public InviteResponse createInvite(UUID accountId, UUID workspaceId) {
         WorkspaceEntity workspace = workspaceRepository.findByIdAndAccountId(workspaceId, accountId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -40,10 +41,16 @@ public class WorkspaceInviteService {
                         "Workspace not found"
                 ));
 
+        // 同時発行で有効なコードが複数残らないようにする
+        workspaceRepository.lockById(workspaceId);
+        OffsetDateTime now = OffsetDateTime.now();
+        // 同じワークスペースの古い招待コードを無効にする
+        workspaceInviteRepository.expireByWorkspaceId(workspaceId, now);
+
         WorkspaceInviteEntity invite = new WorkspaceInviteEntity();
         invite.setWorkspace(workspace);
         invite.setCode(generateUniqueInviteCode());
-        invite.setExpiresAt(OffsetDateTime.now().plusMinutes(30));
+        invite.setExpiresAt(now.plusMinutes(30));
 
         WorkspaceInviteEntity saved = workspaceInviteRepository.save(invite);
 
