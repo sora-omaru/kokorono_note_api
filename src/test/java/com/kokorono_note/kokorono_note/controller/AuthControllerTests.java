@@ -46,6 +46,16 @@ class AuthControllerTests {
     }
 
     @Test
+    void productionRefreshCookieRequiresHttps() throws Exception {
+        var controller = new AuthController(authService);
+        org.springframework.test.util.ReflectionTestUtils.setField(controller, "cookieSecure", true);
+        var productionMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        when(authService.refresh("old-token")).thenReturn(new TokenResponse("access", "refresh"));
+        productionMvc.perform(post("/auth/refresh").cookie(new Cookie("refreshToken", "old-token")))
+                .andExpect(status().isOk()).andExpect(cookie().secure("refreshToken", true));
+    }
+
+    @Test
     void rejectsMissingOrBlankCookie() throws Exception {
         mvc.perform(post("/auth/refresh")).andExpect(status().isUnauthorized());
         mvc.perform(post("/auth/refresh").cookie(new Cookie("refreshToken", "")))

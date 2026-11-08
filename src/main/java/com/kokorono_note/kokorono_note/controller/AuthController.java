@@ -5,6 +5,7 @@ import com.kokorono_note.kokorono_note.dto.response.AccessTokenResponse;
 import com.kokorono_note.kokorono_note.dto.response.TokenResponse;
 import com.kokorono_note.kokorono_note.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -25,6 +26,9 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Value("${app.auth.cookie-secure:false}")
+    private boolean cookieSecure;
+
     @PostMapping("/token")
     public ResponseEntity<AccessTokenResponse> exchangeCodeForAccessToken(@RequestBody AuthCodeRequest request) {
         try {
@@ -37,7 +41,7 @@ public class AuthController {
                             tokens.refreshToken()
                     )
                     .httpOnly(true)
-                    .secure(false) // ローカルHTTP開発用
+                    .secure(cookieSecure)
                     .sameSite("Lax")
                     .path("/auth")
                     .maxAge(Duration.ofDays(1))
@@ -66,7 +70,7 @@ public class AuthController {
             TokenResponse tokens = authService.refresh(refreshToken);
             ResponseCookie cookie = ResponseCookie.from("refreshToken", tokens.refreshToken())
                     .httpOnly(true)
-                    .secure(false) // ローカルHTTP開発用
+                    .secure(cookieSecure)
                     .sameSite("Lax")
                     .path("/auth")
                     .maxAge(Duration.ofDays(1))
