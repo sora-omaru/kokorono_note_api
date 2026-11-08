@@ -38,7 +38,7 @@ class WorkspaceAccountEntityTests {
         entityManager.flush();
         entityManager.clear();
 
-        WorkspaceAccountId id = new WorkspaceAccountId(account.getId(), workspace.getId());
+        WorkspaceAccountId id = new WorkspaceAccountId(workspace.getId(), account.getId());
         assertEquals(id, membership.getId());
         assertEquals(id.hashCode(), membership.getId().hashCode());
         WorkspaceAccountEntity loaded = entityManager.find(WorkspaceAccountEntity.class, id);

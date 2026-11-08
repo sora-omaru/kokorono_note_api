@@ -26,7 +26,7 @@ class WorkspaceJoinControllerTests {
     private final WorkspaceInviteService inviteService = mock(WorkspaceInviteService.class);
     private final UUID accountId = UUID.randomUUID();
     private final MockMvc mvc = MockMvcBuilders.standaloneSetup(
-                    new WorkspaceController(mock(WorkspaceService.class), inviteService))
+                    new InviteController(inviteService))
             .setCustomArgumentResolvers(new AuthenticationPrincipalArgumentResolver())
             .build();
 
