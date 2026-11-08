@@ -1,10 +1,11 @@
 package com.kokorono_note.kokorono_note.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record WorkspaceCreateRequest(
         @NotBlank
+        @Size(max = 100)
         String name
 ) {
 }
