@@ -33,7 +33,7 @@ class SecurityFilterChainTests {
 
     @Test
     void registersGoogleLogin() throws Exception {
-        mockMvc.perform(get("/oauth2/authorization/google"))
+        mockMvc.perform(get("/oauth2/authorization/google").param("flow", "a".repeat(64)))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(header()
                         .string("Location", startsWith("https://accounts.google.com/")));

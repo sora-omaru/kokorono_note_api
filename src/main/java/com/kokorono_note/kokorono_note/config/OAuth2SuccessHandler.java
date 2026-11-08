@@ -29,6 +29,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        var session = request.getSession(false);
+        String flow = session == null ? null : (String) session.getAttribute(FrontendLoginFlowFilter.SESSION_ATTRIBUTE);
+        if (session != null) session.removeAttribute(FrontendLoginFlowFilter.SESSION_ATTRIBUTE);
+        if (flow == null || !flow.matches("[a-f0-9]{64}")) {
+            response.sendRedirect(frontendUrl + "/login?error=oauth");
+            return;
+        }
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
 
         OAuth2User oAuth2User = oauthToken.getPrincipal();
@@ -49,6 +56,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                         .fromUriString(frontendUrl)
                         .path("/oauth/callback")
                         .queryParam("code", code)
+                        .queryParam("flow", flow)
                         .build()
                         .toUriString();
 //Google認証終了時にフロントへリダイレクト

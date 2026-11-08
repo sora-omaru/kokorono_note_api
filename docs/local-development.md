@@ -18,7 +18,7 @@
 
 認証設定は1つの `SecurityConfig` に統一し、`local` と `prod` の両方でGoogle OAuthとJWT認証を使います。`/auth/token` と `/auth/refresh`、Googleログイン用のURL以外は認証が必要です。`/auth/token` はCSRF検証の対象外ですが、Cookieを使う `/auth/refresh` はCSRFトークンが必要です。
 
-Google側にリダイレクトURI `http://localhost:8080/login/oauth2/code/google` を登録し、`http://localhost:8080/oauth2/authorization/google` からログインを開始します。ログイン成功後は `http://localhost:3000/oauth/callback` に一時コードを付けて戻ります。
+Google側にリダイレクトURI `http://localhost:8080/login/oauth2/code/google` を登録し、フロントの `http://localhost:3000/login` からログインを開始します。フロントが `/auth/login` 経由でランダムな `flow` とHttpOnly Cookieを作成し、APIの `/oauth2/authorization/google?flow=...` へ遷移します。APIはOAuthセッションにflowを保持し、成功後に一時コードとともにフロントへ返します。APIのGoogleログインURLを直接開く方法は使いません。ログイン成功後は `http://localhost:3000/oauth/callback` に一時コードを付けて戻ります。
 
 テストはDBを起動してから `./mvnw test` で実行します。
 
@@ -34,3 +34,10 @@ Google側にリダイレクトURI `http://localhost:8080/login/oauth2/code/googl
 - `FRONTEND_URL`（フロントエンドのURL）
 
 Google側には本番APIの `/login/oauth2/code/google` のURLも登録してください。
+
+## フロント経由の認証
+
+フロントはAccess Token、Refresh Token、CSRF用JSESSIONIDを暗号化したHttpOnly Cookieで保持し、APIへの通信をサーバー経由で行う。
+`GET /auth/csrf` のトークンと対応するセッションCookieを取得し、refreshを含む更新系APIへ両方を送る。
+APIのRefresh Token CookieはlocalではSecure=false、prodではSecure=trueとする。フロント側のCookieはフロント自身の環境に合わせて設定する。
+Cookieやトークンの値はログへ出力しない。
