@@ -54,6 +54,8 @@ Eventは具体的な出来事を表す。
 ```
 
 1つのWorkspaceに複数Eventを登録できる。
+名称は空白のみを不可とし、100文字以内で作成・編集する。前後の空白は保存時に除去する。
+名称更新は `PATCH /api/v1/workspaces/{workspaceId}/events/{eventId}` に `{ "name": "更新後の名称" }` を送信し、更新後の `{id, name}` を返す。登録日時と並び順は変更しない。
 
 ---
 
@@ -71,6 +73,8 @@ CategoryはEvent内の分類を表す。
 ```
 
 1つのEventに複数Categoryを登録できる。
+名称はEventと同じ入力規則とし、`PATCH /api/v1/workspaces/{workspaceId}/events/{eventId}/categories/{categoryId}` に `{ "name": "更新後の名称" }` を送信して更新する。
+所属と親子関係を確認したうえで名称のみを更新し、更新後の `{id, name}` を返す。登録日時と並び順は変更しない。
 
 ---
 
