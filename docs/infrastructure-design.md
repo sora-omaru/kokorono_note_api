@@ -176,9 +176,9 @@ DBのユーザー名・パスワード・接続URLなどの秘密情報はGitリ
 想定：
 
 ```text
-DB_URL
-DB_USERNAME
-DB_PASSWORD
+DATABASE_URL
+DATABASE_USERNAME
+DATABASE_PASSWORD
 ```
 
 Spring Boot側：
@@ -186,9 +186,9 @@ Spring Boot側：
 ```yaml
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
 ```
 
 ローカル環境については、Docker Compose側の設定と対応させる。
@@ -317,9 +317,9 @@ openssl pkey -in private-key.pem -pubout -outform DER | openssl base64 -A
 対象：
 
 ```text
-DB_PASSWORD
-DB_USERNAME
-DB_URL
+DATABASE_PASSWORD
+DATABASE_USERNAME
+DATABASE_URL
 Google Client Secret
 その他API Secret
 ```
