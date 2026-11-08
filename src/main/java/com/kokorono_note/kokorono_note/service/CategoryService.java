@@ -1,6 +1,7 @@
 package com.kokorono_note.kokorono_note.service;
 
 import com.kokorono_note.kokorono_note.dto.request.CategoryCreateRequest;
+import com.kokorono_note.kokorono_note.dto.request.CategoryUpdateRequest;
 import com.kokorono_note.kokorono_note.dto.response.CategoryResponse;
 import com.kokorono_note.kokorono_note.entity.CategoryEntity;
 import com.kokorono_note.kokorono_note.entity.EventEntity;
@@ -56,6 +57,17 @@ public class CategoryService {
 
         requireEvent(accountId, workspaceId, eventId);
         CategoryEntity category = findCategory(categoryId, eventId);
+
+        return new CategoryResponse(category.getId(), category.getName());
+    }
+
+    // 名称のみ更新する。登録日時と親Eventは変更しない。
+    @Transactional
+    public CategoryResponse updateCategory(UUID accountId, UUID workspaceId, Long eventId, Long categoryId,
+                                           CategoryUpdateRequest request) {
+        requireEvent(accountId, workspaceId, eventId);
+        CategoryEntity category = findCategory(categoryId, eventId);
+        category.setName(request.name().trim());
 
         return new CategoryResponse(category.getId(), category.getName());
     }

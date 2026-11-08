@@ -1,6 +1,7 @@
 package com.kokorono_note.kokorono_note.controller;
 
 import com.kokorono_note.kokorono_note.dto.request.CategoryCreateRequest;
+import com.kokorono_note.kokorono_note.dto.request.CategoryUpdateRequest;
 import com.kokorono_note.kokorono_note.dto.response.CategoryResponse;
 import com.kokorono_note.kokorono_note.service.CategoryService;
 import jakarta.validation.Valid;
@@ -54,6 +55,19 @@ public class CategoryController {
     ) {
         UUID accountId = UUID.fromString(jwt.getSubject());
         return categoryService.createCategory(accountId, workspaceId, eventId, request);
+    }
+
+    // 名称のみ更新する。
+    @PatchMapping("/{categoryId}")
+    public CategoryResponse updateCategory(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable("workspaceId") UUID workspaceId,
+            @PathVariable("eventId") Long eventId,
+            @PathVariable("categoryId") Long categoryId,
+            @Valid @RequestBody CategoryUpdateRequest request
+    ) {
+        UUID accountId = UUID.fromString(jwt.getSubject());
+        return categoryService.updateCategory(accountId, workspaceId, eventId, categoryId, request);
     }
 
     // 削除

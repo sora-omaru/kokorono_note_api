@@ -1,6 +1,7 @@
 package com.kokorono_note.kokorono_note.service;
 
 import com.kokorono_note.kokorono_note.dto.request.EventCreateRequest;
+import com.kokorono_note.kokorono_note.dto.request.EventUpdateRequest;
 import com.kokorono_note.kokorono_note.dto.response.EventResponse;
 import com.kokorono_note.kokorono_note.entity.EventEntity;
 import com.kokorono_note.kokorono_note.entity.WorkspaceEntity;
@@ -64,6 +65,17 @@ public class EventService {
         requireWorkspace(accountId, workspaceId);
 
         EventEntity event = findEvent(eventId, workspaceId);
+        return new EventResponse(event.getId(), event.getName());
+    }
+
+    // 名称のみ更新する。登録日時と親Workspaceは変更しない。
+    @Transactional
+    public EventResponse updateEvent(UUID accountId, UUID workspaceId, Long eventId,
+                                     EventUpdateRequest request) {
+        requireWorkspace(accountId, workspaceId);
+        EventEntity event = findEvent(eventId, workspaceId);
+        event.setName(request.name().trim());
+
         return new EventResponse(event.getId(), event.getName());
     }
 

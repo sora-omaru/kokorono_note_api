@@ -1,6 +1,7 @@
 package com.kokorono_note.kokorono_note.controller;
 
 import com.kokorono_note.kokorono_note.dto.request.CategoryCreateRequest;
+import com.kokorono_note.kokorono_note.dto.request.CategoryUpdateRequest;
 import com.kokorono_note.kokorono_note.dto.response.CategoryResponse;
 import com.kokorono_note.kokorono_note.service.CategoryService;
 import org.junit.jupiter.api.AfterEach;
@@ -22,6 +23,7 @@ import java.util.UUID;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -116,4 +118,37 @@ class CategoryControllerTests {
                 .andExpect(status().isNoContent());
         verify(categoryService).deleteCategory(accountId, workspaceId, 10L, 1L);
     }
+    @Test
+    void updatesNameUsingAuthenticatedAccountAndAcceptsMaximumLength() throws Exception {
+        String name = "a".repeat(100);
+        CategoryUpdateRequest request = new CategoryUpdateRequest(name);
+        when(categoryService.updateCategory(accountId, workspaceId, 10L, 1L, request))
+                .thenReturn(new CategoryResponse(1L, name));
+        mvc.perform(patch(path + "/1").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"" + name + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value(name));
+        verify(categoryService).updateCategory(accountId, workspaceId, 10L, 1L, request);
+    }
+
+    @Test
+    void rejectsInvalidUpdatedNamesBeforeCallingService() throws Exception {
+        for (String body : new String[]{"{}", "{\"name\":null}", "{\"name\":\"\"}",
+                "{\"name\":\"   \"}", "{\"name\":\"" + "a".repeat(101) + "\"}"}) {
+            mvc.perform(patch(path + "/1").contentType(MediaType.APPLICATION_JSON).content(body))
+                    .andExpect(status().isBadRequest());
+        }
+        verifyNoInteractions(categoryService);
+    }
+
+    @Test
+    void preservesUpdateNotFoundStatus() throws Exception {
+        when(categoryService.updateCategory(accountId, workspaceId, 10L, 1L, new CategoryUpdateRequest("new")))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+        mvc.perform(patch(path + "/1").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"new\"}"))
+                .andExpect(status().isNotFound());
+    }
+
 }

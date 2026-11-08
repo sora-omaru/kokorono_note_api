@@ -1,6 +1,7 @@
 package com.kokorono_note.kokorono_note.controller;
 
 import com.kokorono_note.kokorono_note.dto.request.EventCreateRequest;
+import com.kokorono_note.kokorono_note.dto.request.EventUpdateRequest;
 import com.kokorono_note.kokorono_note.dto.response.EventResponse;
 import com.kokorono_note.kokorono_note.service.EventService;
 import jakarta.validation.Valid;
@@ -48,6 +49,17 @@ public class EventController {
     ) {
         UUID accountId = UUID.fromString(jwt.getSubject());
         return eventService.createEvent(accountId, workspaceId, request);
+    }
+
+    @PatchMapping("/{eventId}")
+    public EventResponse updateEvent(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable("workspaceId") UUID workspaceId,
+            @PathVariable("eventId") Long eventId,
+            @Valid @RequestBody EventUpdateRequest request
+    ) {
+        UUID accountId = UUID.fromString(jwt.getSubject());
+        return eventService.updateEvent(accountId, workspaceId, eventId, request);
     }
 
     @DeleteMapping("/{eventId}")

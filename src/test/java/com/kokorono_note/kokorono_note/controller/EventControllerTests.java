@@ -1,6 +1,7 @@
 package com.kokorono_note.kokorono_note.controller;
 
 import com.kokorono_note.kokorono_note.dto.request.EventCreateRequest;
+import com.kokorono_note.kokorono_note.dto.request.EventUpdateRequest;
 import com.kokorono_note.kokorono_note.dto.response.EventResponse;
 import com.kokorono_note.kokorono_note.service.EventService;
 import org.junit.jupiter.api.AfterEach;
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -107,4 +109,37 @@ class EventControllerTests {
         mvc.perform(get(path)).andExpect(status().isNotFound());
         mvc.perform(get(path + "/1")).andExpect(status().isNotFound());
     }
+    @Test
+    void updatesNameUsingAuthenticatedAccountAndAcceptsMaximumLength() throws Exception {
+        String name = "a".repeat(100);
+        EventUpdateRequest request = new EventUpdateRequest(name);
+        when(eventService.updateEvent(accountId, workspaceId, 1L, request))
+                .thenReturn(new EventResponse(1L, name));
+        mvc.perform(patch(path + "/1").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"" + name + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value(name));
+        verify(eventService).updateEvent(accountId, workspaceId, 1L, request);
+    }
+
+    @Test
+    void rejectsInvalidUpdatedNamesBeforeCallingService() throws Exception {
+        for (String body : new String[]{"{}", "{\"name\":null}", "{\"name\":\"\"}",
+                "{\"name\":\"   \"}", "{\"name\":\"" + "a".repeat(101) + "\"}"}) {
+            mvc.perform(patch(path + "/1").contentType(MediaType.APPLICATION_JSON).content(body))
+                    .andExpect(status().isBadRequest());
+        }
+        verifyNoInteractions(eventService);
+    }
+
+    @Test
+    void preservesUpdateNotFoundStatus() throws Exception {
+        when(eventService.updateEvent(accountId, workspaceId, 1L, new EventUpdateRequest("new")))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+        mvc.perform(patch(path + "/1").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"new\"}"))
+                .andExpect(status().isNotFound());
+    }
+
 }
