@@ -1,0 +1,14 @@
+.git
+.gitignore
+.env
+.env.*
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+target
+build
+.idea
+.vscode
+docs
+compose.yml
